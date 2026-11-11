@@ -1,0 +1,286 @@
+@import "tailwindcss";
+@import "katex/dist/katex.min.css";
+
+@theme {
+  --color-sand: #f5f1e8;
+  --color-card: #fffdf9;
+  --color-line: #e3dccb;
+  --color-ink: #1b2521;
+  --color-muted: #5f6b64;
+  --color-brand: #0b5d4b;
+  --color-brand-deep: #073f33;
+  --color-brand-soft: #e3efe9;
+  --color-accent: #b3261e;
+  --color-gold: #b08433;
+  --font-sans: "IBM Plex Sans Arabic", system-ui, "Segoe UI", sans-serif;
+}
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  background: var(--color-sand);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
+/* ---------- The exam sheet ---------- */
+
+.sheet {
+  background: #fff;
+  color: #000;
+  width: 100%;
+  max-width: 210mm;
+  margin-inline: auto;
+  padding: 14mm 13mm;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 12px 32px -12px rgb(27 37 33 / 0.25);
+  font-family: "Times New Roman", Times, "Amiri", serif;
+  font-size: 12.5pt;
+  line-height: 1.55;
+  overflow-wrap: break-word;
+}
+.sheet[dir="rtl"] {
+  font-family: "Amiri", "Times New Roman", serif;
+  font-size: 14pt;
+  line-height: 1.8;
+}
+@media (max-width: 640px) {
+  .sheet {
+    padding: 18px 14px;
+    font-size: 11.5pt;
+  }
+}
+
+.sheet-head {
+  border: 1.5px solid #000;
+  display: grid;
+  grid-template-columns: 1fr 1.15fr 1fr;
+  font-size: 0.82em;
+  line-height: 1.45;
+}
+.sheet-head > div {
+  padding: 6px 9px;
+}
+.sheet-head > div + div {
+  border-inline-start: 1.5px solid #000;
+}
+.sheet-head .center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 2px;
+}
+.sheet-head .title {
+  font-weight: 700;
+  font-size: 1.22em;
+  line-height: 1.3;
+}
+@media (max-width: 640px) {
+  .sheet-head {
+    grid-template-columns: 1fr;
+  }
+  .sheet-head > div + div {
+    border-inline-start: 0;
+    border-top: 1.5px solid #000;
+  }
+}
+.sheet-strip {
+  border: 1.5px solid #000;
+  border-top: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  padding: 7px 9px;
+  font-size: 0.86em;
+}
+.sheet-strip .fill {
+  flex: 1 1 9rem;
+  display: flex;
+  gap: 6px;
+  white-space: nowrap;
+}
+.sheet-strip .fill::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px dotted #000;
+  margin-bottom: 5px;
+}
+
+.md {
+  margin-top: 14px;
+}
+.md h1,
+.md h2 {
+  font-size: 1.08em;
+  font-weight: 700;
+  margin: 1.1em 0 0.45em;
+  padding: 3px 8px;
+  background: #ededed;
+  border-inline-start: 4px solid #000;
+  break-after: avoid;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+.md h3,
+.md h4 {
+  font-size: 1em;
+  font-weight: 700;
+  text-decoration: underline;
+  margin: 0.9em 0 0.3em;
+  break-after: avoid;
+}
+.md p {
+  margin: 0.45em 0;
+}
+.md ol,
+.md ul {
+  margin: 0.4em 0;
+  padding-inline-start: 1.6em;
+}
+.md ol {
+  list-style: decimal;
+}
+.md ul {
+  list-style: disc;
+}
+.md ol ol {
+  list-style: lower-alpha;
+}
+.md li {
+  margin: 0.3em 0;
+}
+.md li::marker {
+  font-weight: 700;
+}
+.md blockquote {
+  border: 1px solid #000;
+  padding: 6px 12px;
+  margin: 0.7em 0;
+  break-inside: avoid;
+}
+.md table {
+  border-collapse: collapse;
+  margin: 0.7em auto;
+  break-inside: avoid;
+}
+.md th,
+.md td {
+  border: 1px solid #000;
+  padding: 3px 10px;
+  text-align: center;
+}
+.md th {
+  background: #ededed;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+.md hr {
+  border: 0;
+  border-top: 1px solid #000;
+  margin: 1em 0;
+}
+/* The mark of a question, pushed to the outer margin like a barème column. */
+.md .mark {
+  float: inline-end;
+  margin-inline-start: 10px;
+  padding: 0 6px;
+  border: 1px solid #000;
+  font: 700 0.8em/1.5 var(--font-sans);
+  white-space: nowrap;
+  direction: inherit;
+}
+.md pre {
+  border: 1px solid #000;
+  padding: 8px 10px;
+  margin: 0.6em 0;
+  font: 0.85em/1.45 ui-monospace, Menlo, Consolas, monospace;
+  white-space: pre-wrap;
+  direction: ltr;
+  text-align: left;
+}
+.md .figure {
+  display: flex;
+  justify-content: center;
+  margin: 0.7em 0;
+  break-inside: avoid;
+}
+.md .figure svg {
+  max-width: 100%;
+  height: auto;
+}
+/* Mathematics stays left-to-right inside an Arabic paper. */
+.md .katex {
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-size: 1.05em;
+}
+.md .katex-display {
+  margin: 0.6em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.caret::after {
+  content: "";
+  display: inline-block;
+  width: 0.5em;
+  height: 1em;
+  margin-inline-start: 2px;
+  vertical-align: text-bottom;
+  background: var(--color-brand);
+  animation: blink 1s steps(2) infinite;
+}
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .caret::after {
+    animation: none;
+  }
+}
+
+/* ---------- Which sheet is visible ---------- */
+
+@media screen {
+  [data-tab="exam"] .sheet-correction,
+  [data-tab="correction"] .sheet-exam {
+    display: none;
+  }
+}
+
+@page {
+  size: A4;
+  margin: 12mm;
+}
+
+@media print {
+  body {
+    background: #fff;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .sheet {
+    box-shadow: none;
+    max-width: none;
+    padding: 0;
+    margin: 0;
+  }
+  [data-print="exam"] .sheet-correction,
+  [data-print="correction"] .sheet-exam {
+    display: none;
+  }
+  [data-print="both"] .sheet-correction {
+    break-before: page;
+  }
+}
