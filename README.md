@@ -10,29 +10,67 @@ ready to print.
 > **العربية** — «امتحان» موقع يساعد الأساتذة المغاربة على إعداد مواضيع الامتحانات وفق المنظومة
 > التربوية المغربية، لكل مستوى ومسلك ومادة، مع عناصر الإجابة وسلم التنقيط.
 
-| French paper | Arabic paper, Arabic interface |
+| Choosing the complexity | The exam workspace |
 | --- | --- |
-| ![A French mathematics test with the official header, marks column and a figure](docs/paper-fr.png) | ![An Arabic paper laid out right to left](docs/paper-ar.png) |
+| ![The complexity step: difficulty level, balance of marks, question formats](docs/create.png) | ![A paper in the Moderne template with the style panel open](docs/workspace.png) |
 
-## Features
+| The exam library | Arabic interface |
+| --- | --- |
+| ![The list of saved exams with filters and status](docs/library.png) | ![The home page in Arabic, laid out right to left](docs/home-ar.png) |
 
-- **Every level of the Moroccan system**
-  - Primary: 1st to 6th year
-  - Collège: 1AC to 3AC
-  - Lycée: tronc commun, 1st and 2nd year of the baccalauréat, with their tracks — sciences
-    expérimentales, sciences mathématiques A and B, sciences physiques, SVT, sciences
-    agronomiques, économie et gestion, lettres, sciences humaines, STE, STM, arts appliqués,
-    enseignement originel, bac professionnel
-- **Every exam type**, offered according to the level: devoir surveillé (contrôle continu),
-  diagnostic test, and the local, provincial, regional and national standardized exams
-- **Papers in Arabic, French or English**, with the official header (academy, provincial
-  direction, school, duration, coefficient), LaTeX mathematics, tables and figures
-- **Marking guide** (éléments de réponse et barème) for every question
-- **Revisions**: ask for a change in one sentence ("make exercise 2 harder"), or edit the text
-  directly with a live preview
-- **Print or save as PDF** in A4: the paper, the marking guide, or both
-- **Interface in French and Arabic**, usable on a phone
-- **Saved exams** are kept in the teacher's browser; there are no accounts
+## What a teacher can do
+
+### Create a paper in four steps
+
+1. **Class** — cycle, level, track, subject and language of the paper. Classes can be saved
+   and reused in one click.
+2. **Exam** — devoir surveillé, diagnostic test, or local, provincial, regional or national
+   standardized exam; semester or session, duration, total mark, coefficient.
+3. **Content** — the lessons to assess and any special instructions.
+4. **Complexity** — see below.
+
+### Choose the complexity
+
+- **Four difficulty levels**: consolidation, standard, advanced, excellence (competitive exams
+  and olympiads).
+- **Balance of the marks** between restitution, application and reasoning: follow the official
+  framework, pick a preset, or set your own percentages.
+- **Number of exercises** and **question formats** (QCM, true/false, fill-in and matching, open
+  questions, document study, situation-problème).
+- Optional **table of specification** (tableau de spécification) added to the marking guide.
+
+### Adjust the paper
+
+- Ask for a change in one sentence, or use one-click changes: easier, harder, shorter, new
+  numerical data, add a QCM, Moroccan context.
+- Edit the text directly, with a live preview.
+- **Sujet B**: a parallel version with the same structure and marks but different data, for
+  pupils sitting side by side.
+- A **marks check** adds up the points in the paper and compares them with the total.
+- **Version history**: every writing, adjustment and manual edit is kept and can be restored.
+
+### Redesign the sheet
+
+- Four templates: **Officiel**, **Moderne**, **Compact**, **Primaire**.
+- Accent colour, text size, marks in the margin, in the text or hidden.
+- School logo, name/class/mark line, ruled answer lines under each question, closing line.
+- Any style can be made the default for future papers. Restyling never rewrites the content.
+
+### Manage exams
+
+- A library with search, filters by status, cycle and subject, favourites and sorting.
+- Title, status (draft, ready, used in class), duplicate, delete.
+- Header details (academy, school, duration, coefficient…) editable per exam without rewriting.
+- **Backup and restore** of all exams as a file; download of a single paper as text.
+- A **profile** entered once: academy, direction, school, teacher's name, logo, saved classes.
+
+### Everywhere
+
+- Every level of the Moroccan system: primary (1st–6th), collège (1AC–3AC), lycée (tronc commun,
+  1st and 2nd bac) with their tracks, including enseignement originel and bac professionnel.
+- Papers in Arabic, French or English, with LaTeX mathematics, tables and figures.
+- Print or save as PDF in A4: the paper, the marking guide, or both.
+- Interface in French and Arabic, usable on a phone. No accounts: data stays in the browser.
 
 ## Important
 
@@ -53,8 +91,8 @@ cp .env.example .env.local   # then set ANTHROPIC_API_KEY
 npm run dev                  # http://localhost:3000
 ```
 
-Without an API key the site still opens: **Voir un exemple** shows a hand-written sample paper,
-so you can judge the layout and printing.
+Without an API key the site still opens: **Voir un exemple** adds a hand-written sample paper,
+so you can try the workspace, the templates and printing.
 
 ## Configuration
 
@@ -89,14 +127,17 @@ generation route asks for up to 300 seconds.
 
 | Path | Contents |
 | --- | --- |
-| `src/lib/curriculum.ts` | Cycles, levels, tracks, subjects, exam types, regional academies |
+| `src/app/` | Routes: home, `/nouveau` (creation), `/examens` (library), `/examens/[id]` (workspace), `/profil`, and the API |
+| `src/lib/curriculum.ts` | Cycles, levels, tracks, subjects, exam types, difficulty levels, regional academies |
 | `src/lib/prompt.ts` | Instructions to the model and the usual structure of each paper |
+| `src/lib/store.tsx` | The teacher's exams, profile and settings, kept in the browser |
 | `src/lib/i18n.ts` | Interface and paper labels in French, Arabic and English |
 | `src/lib/validate.ts` | Server-side validation of the teacher's request |
 | `src/app/api/generate/route.ts` | Call to the Claude API, streamed to the browser |
-| `src/components/ExamForm.tsx` | The teacher's form |
-| `src/components/Paper.tsx` | The exam sheet: header, paper, marking guide |
-| `src/components/Markdown.tsx` | Rendering of mathematics, tables and figures |
+| `src/components/Wizard.tsx` | The four-step creation screen |
+| `src/components/Editor.tsx` | The exam workspace: adjust, style, header, versions |
+| `src/components/Library.tsx` | The exam library |
+| `src/components/Paper.tsx`, `StylePanel.tsx` | The exam sheet and its templates (styles in `src/app/globals.css`) |
 
 To add a subject or a track, edit `src/lib/curriculum.ts`. To change how a subject's paper is
 structured, edit `structureHint` in `src/lib/prompt.ts`.
@@ -115,5 +156,6 @@ structured, edit `structureHint` in `src/lib/prompt.ts`.
 - The subject lists per track, the usual paper structures, and the default durations are a
   starting point written from general knowledge; have a teacher check them for your subjects.
 - Coefficients are entered by the teacher, not filled in from official tables.
-- Saved exams live in one browser and do not follow the teacher to another device.
+- Exams, profile and logo live in one browser. Use the backup file to move them to another
+  device; clearing the browser's data deletes them.
 - Figures are drawn by the model and should be checked like the rest of the paper.
