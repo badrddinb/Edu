@@ -1,63 +1,119 @@
 # Imtihan — امتحان
 
-Site web pour les enseignants marocains : il rédige des sujets d'examen conformes au système
-éducatif marocain, pour chaque cycle, chaque niveau, chaque filière et chaque matière, avec le
-barème et les éléments de réponse, prêts à imprimer.
+**An exam generator for Moroccan teachers.** Pick the level, the track, the subject and the type
+of exam; Imtihan writes a paper in the format used in Moroccan schools, with its marking guide,
+ready to print.
 
-## Ce que fait le site
+> **Français** — Imtihan rédige des sujets d'examen conformes au système éducatif marocain, pour
+> chaque niveau, chaque filière et chaque matière, avec barème et éléments de réponse.
+>
+> **العربية** — «امتحان» موقع يساعد الأساتذة المغاربة على إعداد مواضيع الامتحانات وفق المنظومة
+> التربوية المغربية، لكل مستوى ومسلك ومادة، مع عناصر الإجابة وسلم التنقيط.
 
-- **Tous les niveaux** : primaire (1ʳᵉ à 6ᵉ), collège (1AC à 3AC), lycée (tronc commun, 1ʳᵉ et
-  2ᵉ bac) avec toutes les filières : sciences expérimentales, sciences mathématiques A et B,
-  sciences physiques, SVT, sciences agronomiques, économie et gestion, lettres, sciences
-  humaines, STE, STM, arts appliqués, enseignement originel, bac professionnel.
-- **Tous les types d'épreuve** : devoir surveillé (contrôle continu), évaluation diagnostique,
-  examen normalisé local, provincial, régional et national, proposés selon le niveau.
-- **Sujet en arabe, en français ou en anglais**, avec en-tête officiel (académie, direction,
-  établissement, durée, coefficient), formules mathématiques, tableaux et figures.
-- **Corrigé et barème** détaillés, question par question.
-- **Retouches** : demander une modification en une phrase, ou modifier le texte directement.
-- **Impression / PDF** au format A4 : le sujet, le corrigé, ou les deux.
-- **Interface en français et en arabe** ; les sujets générés sont conservés sur l'appareil.
+| French paper | Arabic paper, Arabic interface |
+| --- | --- |
+| ![A French mathematics test with the official header, marks column and a figure](docs/paper-fr.png) | ![An Arabic paper laid out right to left](docs/paper-ar.png) |
 
-Les sujets sont rédigés par une IA (Claude, d'Anthropic) à partir des programmes et des cadres de
-référence qu'elle connaît. Ce ne sont pas des épreuves officielles : l'enseignant doit relire
-l'énoncé, les données et le barème avant de distribuer le sujet.
+## Features
 
-## Lancer le site
+- **Every level of the Moroccan system**
+  - Primary: 1st to 6th year
+  - Collège: 1AC to 3AC
+  - Lycée: tronc commun, 1st and 2nd year of the baccalauréat, with their tracks — sciences
+    expérimentales, sciences mathématiques A and B, sciences physiques, SVT, sciences
+    agronomiques, économie et gestion, lettres, sciences humaines, STE, STM, arts appliqués,
+    enseignement originel, bac professionnel
+- **Every exam type**, offered according to the level: devoir surveillé (contrôle continu),
+  diagnostic test, and the local, provincial, regional and national standardized exams
+- **Papers in Arabic, French or English**, with the official header (academy, provincial
+  direction, school, duration, coefficient), LaTeX mathematics, tables and figures
+- **Marking guide** (éléments de réponse et barème) for every question
+- **Revisions**: ask for a change in one sentence ("make exercise 2 harder"), or edit the text
+  directly with a live preview
+- **Print or save as PDF** in A4: the paper, the marking guide, or both
+- **Interface in French and Arabic**, usable on a phone
+- **Saved exams** are kept in the teacher's browser; there are no accounts
 
-Il faut Node.js 20 ou plus récent et une clé API Anthropic.
+## Important
+
+The papers are written by an AI model (Claude, by Anthropic) from its knowledge of the Moroccan
+programmes and cadres de référence. They are **not official exams**, and no official document is
+loaded into the site. A teacher must review the questions, the data and the marks before giving
+a paper to pupils.
+
+## Quick start
+
+You need Node.js 20 or later and an [Anthropic API key](https://console.anthropic.com).
 
 ```bash
+git clone https://github.com/badrddinb/Edu.git
+cd Edu
 npm install
-cp .env.example .env.local   # puis renseigner ANTHROPIC_API_KEY
+cp .env.example .env.local   # then set ANTHROPIC_API_KEY
 npm run dev                  # http://localhost:3000
 ```
 
-Sans clé API, le site s'ouvre quand même : le bouton « Voir un exemple » affiche un sujet rédigé
-à la main pour juger de la mise en page.
+Without an API key the site still opens: **Voir un exemple** shows a hand-written sample paper,
+so you can judge the layout and printing.
 
-| Variable | Rôle |
+## Configuration
+
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `ANTHROPIC_API_KEY` | yes | Anthropic API key. Used on the server only, never sent to the browser. |
+| `ACCESS_CODE` | no | A code teachers must enter before generating. Set it on any public deployment: without it, every visitor can spend your API key. |
+| `ANTHROPIC_MODEL` | no | Model used to write the papers. Defaults to `claude-opus-5-5`. |
+
+## Deployment
+
+Imtihan is a standard Next.js application.
+
+```bash
+npm run build
+npm start
+```
+
+It runs on Vercel or any Node.js host once the variables above are set. Writing a full paper
+with its marking guide can take a few minutes, so the host must allow long responses; the
+generation route asks for up to 300 seconds.
+
+## How it works
+
+1. The form builds an exam description from the curriculum data in `src/lib/curriculum.ts`.
+2. The server validates it, then asks Claude for the paper, giving it the conventions of
+   Moroccan exams and the usual structure of that subject's paper (`src/lib/prompt.ts`).
+3. The paper is streamed back as Markdown and rendered on an A4 sheet. The official header is
+   printed by the site from the teacher's settings, not by the model.
+
+## Project structure
+
+| Path | Contents |
 | --- | --- |
-| `ANTHROPIC_API_KEY` | Clé API Anthropic, utilisée côté serveur uniquement. Obligatoire. |
-| `ACCESS_CODE` | Code demandé aux enseignants avant de générer. Recommandé en ligne. |
-| `ANTHROPIC_MODEL` | Modèle utilisé, `claude-opus-5-5` par défaut. |
+| `src/lib/curriculum.ts` | Cycles, levels, tracks, subjects, exam types, regional academies |
+| `src/lib/prompt.ts` | Instructions to the model and the usual structure of each paper |
+| `src/lib/i18n.ts` | Interface and paper labels in French, Arabic and English |
+| `src/lib/validate.ts` | Server-side validation of the teacher's request |
+| `src/app/api/generate/route.ts` | Call to the Claude API, streamed to the browser |
+| `src/components/ExamForm.tsx` | The teacher's form |
+| `src/components/Paper.tsx` | The exam sheet: header, paper, marking guide |
+| `src/components/Markdown.tsx` | Rendering of mathematics, tables and figures |
 
-## Mettre en ligne
+To add a subject or a track, edit `src/lib/curriculum.ts`. To change how a subject's paper is
+structured, edit `structureHint` in `src/lib/prompt.ts`.
 
-C'est une application Next.js standard : `npm run build` puis `npm start`, ou un déploiement
-sur Vercel ou tout hébergeur Node.js en définissant les variables ci-dessus. La rédaction d'un
-sujet complet peut prendre quelques minutes ; l'hébergeur doit autoriser des réponses de cette
-durée (la route est configurée pour 300 secondes).
+## Scripts
 
-## Organisation du code
-
-| Fichier | Contenu |
+| Command | Action |
 | --- | --- |
-| `src/lib/curriculum.ts` | Cycles, niveaux, filières, matières, types d'épreuve, académies. |
-| `src/lib/prompt.ts` | Consignes données au modèle et structure usuelle de chaque épreuve. |
-| `src/app/api/generate/route.ts` | Appel à l'API Claude, réponse envoyée au fil de l'eau. |
-| `src/components/ExamForm.tsx` | Formulaire de l'enseignant. |
-| `src/components/Paper.tsx` | Feuille d'examen : en-tête officiel, sujet, corrigé. |
-| `src/lib/i18n.ts` | Textes de l'interface et de la feuille (français, arabe, anglais). |
+| `npm run dev` | Start the development server |
+| `npm run build` | Build for production |
+| `npm start` | Serve the production build |
+| `npm run lint` | Check the code with ESLint |
 
-Pour ajouter une matière ou une filière, il suffit de compléter `src/lib/curriculum.ts`.
+## Limits
+
+- The subject lists per track, the usual paper structures, and the default durations are a
+  starting point written from general knowledge; have a teacher check them for your subjects.
+- Coefficients are entered by the teacher, not filled in from official tables.
+- Saved exams live in one browser and do not follow the teacher to another device.
+- Figures are drawn by the model and should be checked like the rest of the paper.
