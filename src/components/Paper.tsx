@@ -1,6 +1,5 @@
 "use client";
 
-import { EXAM_TYPES } from "@/lib/curriculum";
 import {
   PAPER,
   academyName,
@@ -10,7 +9,7 @@ import {
   subjectName,
   trackName,
 } from "@/lib/i18n";
-import type { ExamConfig } from "@/lib/types";
+import type { ExamConfig, ExamStyle } from "@/lib/types";
 import Markdown from "./Markdown";
 
 function Row({ label, value }: { label: string; value: string }) {
@@ -22,7 +21,7 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
-function Head({ config }: { config: ExamConfig }) {
+function Head({ config, style, logo }: { config: ExamConfig; style: ExamStyle; logo: string }) {
   const lang = config.lang;
   const p = PAPER[lang];
   const { title, sub } = examTitle(config, lang);
@@ -44,6 +43,10 @@ function Head({ config }: { config: ExamConfig }) {
           <Row label={p.school} value={config.school} />
         </div>
         <div className="center">
+          {style.logo && logo && (
+            // eslint-disable-next-line @next/next/no-img-element -- a local data URL
+            <img className="sheet-logo" src={logo} alt="" />
+          )}
           <div className="title">{title}</div>
           {sub && <div>{sub}</div>}
           <div>
@@ -59,7 +62,7 @@ function Head({ config }: { config: ExamConfig }) {
           <Row label={p.teacher} value={config.teacher} />
         </div>
       </div>
-      {!EXAM_TYPES[config.examType].normalized && (
+      {style.strip && (
         <div className="sheet-strip">
           <span className="fill">
             <b>{p.name} :</b>
@@ -81,11 +84,15 @@ function Head({ config }: { config: ExamConfig }) {
 
 export default function Paper({
   config,
+  style,
+  logo,
   exam,
   correction,
   streaming,
 }: {
   config: ExamConfig;
+  style: ExamStyle;
+  logo: string;
   exam: string;
   correction: string;
   streaming: boolean;
@@ -93,15 +100,34 @@ export default function Paper({
   const dir = config.lang === "ar" ? "rtl" : "ltr";
   const p = PAPER[config.lang];
   const { title } = examTitle(config, config.lang);
+  const look = {
+    "data-template": style.template,
+    "data-size": style.size,
+    "data-marks": style.marks,
+    "data-accent": style.accent,
+  };
   return (
     <>
-      <article className="sheet sheet-exam" dir={dir} lang={config.lang}>
-        <Head config={config} />
+      <article
+        className="sheet sheet-exam"
+        dir={dir}
+        lang={config.lang}
+        data-answers={style.answerSpace}
+        {...look}
+      >
+        <Head config={config} style={style} logo={logo} />
         <Markdown text={exam} />
         {streaming && !correction && <span className="caret" />}
+        {style.closing && !streaming && exam && <p className="sheet-closing">{p.closing}</p>}
       </article>
       {correction && (
-        <article className="sheet sheet-correction mt-6 print:mt-0" dir={dir} lang={config.lang}>
+        <article
+          className="sheet sheet-correction mt-6 print:mt-0"
+          dir={dir}
+          lang={config.lang}
+          {...look}
+          data-marks={style.marks === "hidden" ? "margin" : style.marks}
+        >
           <div className="sheet-head" style={{ gridTemplateColumns: "1fr" }}>
             <div className="center">
               <div className="title">{p.correction}</div>

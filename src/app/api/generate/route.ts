@@ -1,6 +1,11 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { accessAllowed } from "@/lib/access";
-import { SYSTEM_PROMPT, buildRevisionMessage, buildUserMessage } from "@/lib/prompt";
+import {
+  SYSTEM_PROMPT,
+  buildRevisionMessage,
+  buildUserMessage,
+  buildVariantMessage,
+} from "@/lib/prompt";
 import { parseConfig } from "@/lib/validate";
 
 export const dynamic = "force-dynamic";
@@ -36,11 +41,16 @@ export async function POST(request: Request) {
   const messages: Anthropic.Beta.BetaMessageParam[] = [
     { role: "user", content: buildUserMessage(config) },
   ];
-  // Revision: replay the paper as it now stands (including the teacher's own
-  // edits) and ask for the change.
+  // Revision and variant both replay the paper as it now stands, including the
+  // teacher's own edits, then ask for the change.
   const revision = typeof body.revision === "string" ? body.revision.slice(0, 2000).trim() : "";
   const current = typeof body.current === "string" ? body.current.slice(0, 120_000).trim() : "";
-  if (revision && current) {
+  if (current && body.mode === "variant") {
+    messages.push(
+      { role: "assistant", content: current },
+      { role: "user", content: buildVariantMessage() },
+    );
+  } else if (current && revision) {
     messages.push(
       { role: "assistant", content: current },
       { role: "user", content: buildRevisionMessage(revision) },

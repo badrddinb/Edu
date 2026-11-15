@@ -40,21 +40,54 @@ body {
   margin-inline: auto;
   padding: 14mm 13mm;
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 12px 32px -12px rgb(27 37 33 / 0.25);
+  --scale: 1;
+  --accent: #000;
+  --rule: #000;
   font-family: "Times New Roman", Times, "Amiri", serif;
-  font-size: 12.5pt;
+  font-size: calc(12.5pt * var(--scale));
   line-height: 1.55;
   overflow-wrap: break-word;
 }
 .sheet[dir="rtl"] {
   font-family: "Amiri", "Times New Roman", serif;
-  font-size: 14pt;
+  font-size: calc(14pt * var(--scale));
   line-height: 1.8;
+}
+.sheet[data-size="s"] {
+  --scale: 0.9;
+}
+.sheet[data-size="l"] {
+  --scale: 1.13;
+}
+.sheet[data-accent="green"] {
+  --accent: #0b5d4b;
+}
+.sheet[data-accent="blue"] {
+  --accent: #1d4e89;
+}
+.sheet[data-accent="red"] {
+  --accent: #a3261e;
+}
+.sheet[data-accent="purple"] {
+  --accent: #5b3a8c;
 }
 @media (max-width: 640px) {
   .sheet {
     padding: 18px 14px;
-    font-size: 11.5pt;
+    font-size: calc(11.5pt * var(--scale));
   }
+}
+.sheet-logo {
+  max-height: 3.4em;
+  max-width: 7em;
+  object-fit: contain;
+  margin-bottom: 2px;
+}
+.sheet-closing {
+  margin-top: 1.4em;
+  text-align: center;
+  font-weight: 700;
+  color: var(--accent);
 }
 
 .sheet-head {
@@ -124,7 +157,7 @@ body {
   margin: 1.1em 0 0.45em;
   padding: 3px 8px;
   background: #ededed;
-  border-inline-start: 4px solid #000;
+  border-inline-start: 4px solid var(--accent);
   break-after: avoid;
   print-color-adjust: exact;
   -webkit-print-color-adjust: exact;
@@ -228,6 +261,173 @@ body {
   overflow-y: hidden;
 }
 
+/* ---------- How marks are shown ---------- */
+
+.sheet[data-marks="inline"] .md .mark {
+  float: none;
+  border: 0;
+  padding: 0;
+  margin-inline-start: 6px;
+}
+.sheet[data-marks="inline"] .md .mark::before {
+  content: "(";
+}
+.sheet[data-marks="inline"] .md .mark::after {
+  content: ")";
+}
+.sheet[data-marks="hidden"] .md .mark {
+  display: none;
+}
+
+/* Ruled space under each question, for papers answered on the sheet. */
+.sheet-exam[data-answers="true"] .md li:not(:has(li))::after {
+  content: "";
+  display: block;
+  clear: both;
+  height: 5.1em;
+  margin-top: 0.3em;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0 calc(1.7em - 1px),
+    #9a9a9a calc(1.7em - 1px) 1.7em
+  );
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+/* ---------- Templates ---------- */
+
+/* Moderne: sans-serif, light rules, colour carried by the accent. */
+.sheet[data-template="moderne"],
+.sheet[data-template="primaire"] {
+  font-family: "IBM Plex Sans Arabic", system-ui, "Segoe UI", sans-serif;
+  font-size: calc(11pt * var(--scale));
+  line-height: 1.6;
+}
+.sheet[data-template="moderne"][dir="rtl"] {
+  font-size: calc(12pt * var(--scale));
+  line-height: 1.8;
+}
+.sheet[data-template="moderne"] .sheet-head {
+  border: 0;
+  border-bottom: 3px solid var(--accent);
+  padding-bottom: 4px;
+}
+.sheet[data-template="moderne"] .sheet-head > div + div {
+  border: 0;
+}
+.sheet[data-template="moderne"] .sheet-head .title {
+  color: var(--accent);
+  font-size: 1.35em;
+}
+.sheet[data-template="moderne"] .sheet-strip {
+  border: 0;
+  border-bottom: 1px solid #bbb;
+  padding-block: 9px;
+}
+.sheet[data-template="moderne"] .md h1,
+.sheet[data-template="moderne"] .md h2 {
+  background: none;
+  border: 0;
+  border-bottom: 2px solid var(--accent);
+  color: var(--accent);
+  padding: 0 0 2px;
+  font-size: 1.12em;
+}
+.sheet[data-template="moderne"] .md h3 {
+  text-decoration: none;
+  color: var(--accent);
+}
+.sheet[data-template="moderne"] .md .mark,
+.sheet[data-template="primaire"] .md .mark {
+  border-color: var(--accent);
+  color: var(--accent);
+  border-radius: 999px;
+  padding-inline: 8px;
+}
+.sheet[data-template="moderne"] .md blockquote {
+  border: 0;
+  border-inline-start: 3px solid var(--accent);
+  background: #f4f4f1;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+/* Compact: the same paper on less paper. */
+.sheet[data-template="compact"] {
+  padding: 9mm 9mm;
+  font-size: calc(10.5pt * var(--scale));
+  line-height: 1.32;
+}
+.sheet[data-template="compact"][dir="rtl"] {
+  font-size: calc(12pt * var(--scale));
+  line-height: 1.5;
+}
+.sheet[data-template="compact"] .sheet-head > div {
+  padding: 3px 7px;
+}
+.sheet[data-template="compact"] .sheet-strip {
+  padding: 4px 7px;
+}
+.sheet[data-template="compact"] .md {
+  margin-top: 8px;
+}
+.sheet[data-template="compact"] .md h1,
+.sheet[data-template="compact"] .md h2 {
+  margin: 0.6em 0 0.25em;
+  padding: 1px 6px;
+  font-size: 1em;
+}
+.sheet[data-template="compact"] .md p,
+.sheet[data-template="compact"] .md li {
+  margin: 0.15em 0;
+}
+.sheet[data-template="compact"] .md blockquote,
+.sheet[data-template="compact"] .md table,
+.sheet[data-template="compact"] .md .figure {
+  margin-block: 0.4em;
+}
+
+/* Primaire: large, airy and rounded, for young pupils. */
+.sheet[data-template="primaire"] {
+  font-size: calc(14pt * var(--scale));
+  line-height: 1.9;
+}
+.sheet[data-template="primaire"][dir="rtl"] {
+  font-size: calc(15pt * var(--scale));
+  line-height: 2.1;
+}
+.sheet[data-template="primaire"] .sheet-head {
+  border: 2px solid var(--accent);
+  border-radius: 14px 14px 0 0;
+  font-size: 0.72em;
+}
+.sheet[data-template="primaire"] .sheet-head > div + div {
+  border-color: var(--accent);
+}
+.sheet[data-template="primaire"] .sheet-strip {
+  border: 2px solid var(--accent);
+  border-top: 0;
+  border-radius: 0 0 14px 14px;
+  font-size: 0.8em;
+}
+.sheet[data-template="primaire"] .md h1,
+.sheet[data-template="primaire"] .md h2 {
+  background: none;
+  border: 2px solid var(--accent);
+  border-radius: 12px;
+  color: var(--accent);
+  padding: 2px 14px;
+  margin-top: 1.3em;
+}
+.sheet[data-template="primaire"] .md blockquote {
+  border: 2px dashed var(--accent);
+  border-radius: 12px;
+}
+.sheet[data-template="primaire"] .md li {
+  margin: 0.55em 0;
+}
+
 .caret::after {
   content: "";
   display: inline-block;
@@ -270,7 +470,8 @@ body {
   .no-print {
     display: none !important;
   }
-  .sheet {
+  .sheet,
+  .sheet[data-template="compact"] {
     box-shadow: none;
     max-width: none;
     padding: 0;

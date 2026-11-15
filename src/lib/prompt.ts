@@ -5,7 +5,9 @@ import {
   getLevel,
   getTrack,
   type CycleId,
+  type Difficulty,
   type Lang,
+  type QuestionFormat,
 } from "./curriculum";
 import { CORRECTION_MARKER, type ExamConfig } from "./types";
 
@@ -102,6 +104,25 @@ function structureHint(subjectId: string, cycle: CycleId): string {
   }
 }
 
+const DIFFICULTY_BRIEF: Record<Difficulty, string> = {
+  accessible:
+    "consolidation — a class that needs support. Keep the official format; favour restitution and direct application, guide the pupil with intermediate questions, use simple data.",
+  standard: "the usual standard of this exam type, as in real past papers.",
+  exigeant:
+    "advanced — a strong class. Keep the official format; fewer guiding questions, more reasoning, justification and synthesis.",
+  excellence:
+    "excellence — preparation for competitive entrance exams and olympiads. Stay inside the programme of the level, but ask for original, multi-step reasoning with little guidance; the last questions should challenge the best pupils.",
+};
+
+const FORMAT_BRIEF: Record<QuestionFormat, string> = {
+  qcm: "multiple-choice questions (QCM) with one correct answer among plausible distractors",
+  vrai_faux: "true/false statements, with justification or correction of the false ones",
+  completer: "texts, tables or diagrams to complete, and matching exercises",
+  ouvertes: "open questions requiring a written, justified answer",
+  documents: "study of documents (texts, tables, described graphs)",
+  probleme: "a situation-problème set in a concrete context, ideally a Moroccan one",
+};
+
 function describe(config: ExamConfig): string {
   const level = getLevel(config.levelId);
   if (!level) throw new Error("Unknown level");
@@ -124,13 +145,14 @@ function describe(config: ExamConfig): string {
     `Total: ${config.total} points`,
     config.coefficient ? `Coefficient: ${config.coefficient}` : "",
     config.academy >= 0 ? `Regional academy: ${ACADEMIES[config.academy].fr}` : "",
-    `Difficulty: ${
-      {
-        standard: "the usual standard of this exam type",
-        accessible: "accessible — a class that needs consolidation; keep the format, favour direct application",
-        exigeant: "demanding — a strong class; keep the format, add more reasoning and synthesis",
-      }[config.difficulty]
-    }`,
+    `Difficulty: ${DIFFICULTY_BRIEF[config.difficulty]}`,
+    config.mix
+      ? `Balance of the marks, chosen by the teacher: about ${config.mix.knowledge}% restitution of knowledge, ${config.mix.application}% direct application, ${config.mix.reasoning}% reasoning, analysis and problem solving. Keep the official structure of the paper and reach this balance through the choice and weight of the questions.`
+      : "",
+    config.exercises ? `Number of exercises or main parts: ${config.exercises}` : "",
+    config.formats.length
+      ? `Question formats the teacher wants to see in the paper, where they suit the subject: ${config.formats.map((f) => FORMAT_BRIEF[f]).join("; ")}`
+      : "",
   ];
   return lines.filter(Boolean).join("\n");
 }
@@ -162,7 +184,11 @@ export function buildUserMessage(config: ExamConfig): string {
       ? `Additional instructions from the teacher, which take priority over the usual structure:\n${config.instructions.trim()}`
       : "",
     config.withCorrection
-      ? `After the paper, write ${CORRECTION_MARKER} and the detailed marking guide.`
+      ? `After the paper, write ${CORRECTION_MARKER} and the detailed marking guide.${
+          config.specTable
+            ? " End the marking guide with a table of specification (tableau de spécification — جدول التخصيص): one row per lesson or domain assessed, columns for the three levels (restitution, application, reasoning) giving the marks of the questions that fall there, and row and column totals that add up to the total of the paper."
+            : ""
+        }`
       : "The teacher does not want a marking guide: write the paper only.",
   ];
   return parts.filter(Boolean).join("\n\n");
@@ -170,4 +196,8 @@ export function buildUserMessage(config: ExamConfig): string {
 
 export function buildRevisionMessage(request: string): string {
   return `The teacher has read the paper and asks for this change:\n\n${request.trim()}\n\nRewrite the complete paper with the change applied, in the same format, keeping everything the teacher did not ask to change. Keep the marks consistent with the total, and update the marking guide after ${CORRECTION_MARKER} if the paper has one.`;
+}
+
+export function buildVariantMessage(): string {
+  return `The teacher needs a second version of this paper (sujet B) so that pupils sitting side by side cannot copy from each other. Write a parallel paper: same lessons, same structure, same number of questions, same marks for each question and the same difficulty, but different numerical data, different supporting texts or documents, and different wording where that matters. A pupil who prepared for version A must be exactly as well prepared for version B. Write the complete paper in the same format, with its own marking guide after ${CORRECTION_MARKER} if the original has one.`;
 }

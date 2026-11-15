@@ -1,5 +1,5 @@
-import AppLoader from "@/components/AppLoader";
+import Home from "@/components/Home";
 
-export default function Home() {
-  return <AppLoader />;
+export default function Page() {
+  return <Home />;
 }

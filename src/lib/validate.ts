@@ -1,5 +1,12 @@
-import { ACADEMIES, DIFFICULTIES, SUBJECTS, getLevel, subjectsFor } from "./curriculum";
-import type { ExamConfig } from "./types";
+import {
+  ACADEMIES,
+  DIFFICULTIES,
+  QUESTION_FORMATS,
+  SUBJECTS,
+  getLevel,
+  subjectsFor,
+} from "./curriculum";
+import type { ExamConfig, Mix } from "./types";
 
 const str = (v: unknown, max: number): string =>
   typeof v === "string" ? v.slice(0, max) : "";
@@ -8,6 +15,17 @@ const int = (v: unknown, min: number, max: number, fallback: number): number => 
   const n = typeof v === "number" ? Math.round(v) : NaN;
   return Number.isFinite(n) && n >= min && n <= max ? n : fallback;
 };
+
+function parseMix(v: unknown): Mix | null {
+  if (!v || typeof v !== "object") return null;
+  const m = v as Record<string, unknown>;
+  const knowledge = int(m.knowledge, 0, 100, -1);
+  const application = int(m.application, 0, 100, -1);
+  const reasoning = int(m.reasoning, 0, 100, -1);
+  if (knowledge < 0 || application < 0 || reasoning < 0) return null;
+  if (knowledge + application + reasoning !== 100) return null;
+  return { knowledge, application, reasoning };
+}
 
 /** Returns a clean config, or null when the request does not describe a real exam. */
 export function parseConfig(input: unknown): ExamConfig | null {
@@ -54,7 +72,13 @@ export function parseConfig(input: unknown): ExamConfig | null {
     teacher: str(c.teacher, 80),
     topics: str(c.topics, 4000),
     difficulty,
+    mix: parseMix(c.mix),
+    exercises: int(c.exercises, 2, 8, 0),
+    formats: Array.isArray(c.formats)
+      ? QUESTION_FORMATS.filter((f) => (c.formats as unknown[]).includes(f))
+      : [],
     instructions: str(c.instructions, 2000),
     withCorrection: c.withCorrection !== false,
+    specTable: c.specTable === true,
   };
 }

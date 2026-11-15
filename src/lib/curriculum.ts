@@ -333,8 +333,25 @@ export const ACADEMIES: L10n[] = [
   { fr: "Dakhla-Oued Ed-Dahab", ar: "الداخلة - وادي الذهب" },
 ];
 
-export const DIFFICULTIES = ["standard", "accessible", "exigeant"] as const;
+export const DIFFICULTIES = ["accessible", "standard", "exigeant", "excellence"] as const;
 export type Difficulty = (typeof DIFFICULTIES)[number];
+
+export const QUESTION_FORMATS = [
+  "qcm",
+  "vrai_faux",
+  "completer",
+  "ouvertes",
+  "documents",
+  "probleme",
+] as const;
+export type QuestionFormat = (typeof QUESTION_FORMATS)[number];
+
+/** Ready-made balances between restitution, application and reasoning (percent of the marks). */
+export const MIX_PRESETS = {
+  equilibre: { knowledge: 30, application: 40, reasoning: 30 },
+  application: { knowledge: 20, application: 60, reasoning: 20 },
+  raisonnement: { knowledge: 15, application: 35, reasoning: 50 },
+} as const;
 
 export function getLevel(id: string): Level | undefined {
   return LEVELS.find((l) => l.id === id);
